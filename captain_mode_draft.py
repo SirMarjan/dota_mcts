@@ -4,23 +4,21 @@ import pickle
 import logging
 import numpy as np
 import time
+from models_win_rate.model_win_rate import ModelWinRate
+HEROES_NUM = 130
+
 
 class Draft:
     """
     class handling state of the draft
     """
-    outcome_model = None
-    outcome_model_tf = None
 
-    def __init__(self, env_path=None, env=None, p0_model_str=None, p1_model_str=None):
-        if (p0_model_str and p1_model_str) and (env_path or env):
-            if env_path:
-                self.outcome_model, self.M = self.load(env_path)
-            else:
-                self.outcome_model_tf = env
-                self.M = 130
+    def __init__(self, model_win_rate: ModelWinRate = None, p0_model_str=None, p1_model_str=None):
+        if p0_model_str and p1_model_str and model_win_rate:
+            self.model_win_rate = model_win_rate
             self.state = [[], []]
-            self.avail_moves = set(range(self.M))
+            # TODO remove deleted heroes
+            self.avail_moves = set(range(HEROES_NUM))
             self.move_cnt = [0, 0]
             self.player = None  # current player's turn
             self.next_player = 0  # next player turn
@@ -38,9 +36,7 @@ class Draft:
         if player_model_str == 'random':
             return RandomPlayer(draft=self)
         elif player_model_str.startswith('mcts'):
-            #max_iters, c = parse_mcts_maxiter_c(player_model_str)
-            c = 0.5
-            max_iters = 50
+            max_iters, c = parse_mcts_maxiter_c(player_model_str)
             return MCTSPlayer(name=player_model_str, draft=self, maxiters=max_iters, c=c)
         #elif player_model_str == 'assocrule':
         #    return AssocRulePlayer(draft=self)
@@ -58,16 +54,8 @@ class Draft:
 
     def eval(self):
         assert self.end()
-        x = np.zeros((1, self.M))
-        x[0, self.state[0]] = 1
-        x[0, self.state[1]] = -1
-        if self.outcome_model:
-            red_team_win_rate = self.outcome_model.predict_proba(x)[0, 1]
-            #print("output:", self.outcome_model.predict_proba(x)[0, 1])
-            #print("o:", self.outcome_model.predict_proba(x))
-        else:
-            red_team_win_rate = self.outcome_model_tf.predict_proba(x)[0, 1]
-            #print("o:", self.outcome_model_tf.predict_proba(x))
+        input_x = self.model_win_rate.prepare_input_vector(self.state)
+        red_team_win_rate = self.model_win_rate.predict_win(input_x)
         return red_team_win_rate
 
     def copy(self):
@@ -75,11 +63,7 @@ class Draft:
         make copy of the board
         """
         copy = Draft()
-        #t1 = time.time()
-        copy.outcome_model = self.outcome_model
-        copy.outcome_model_tf = self.outcome_model_tf
-        #print(time.time() - t1)
-        copy.M = self.M
+        copy.model_win_rate = self.model_win_rate
         copy.state = [self.state[0][:], self.state[1][:]]
         copy.avail_moves = set(self.avail_moves)
         copy.move_cnt = self.move_cnt[:]
@@ -96,7 +80,9 @@ class Draft:
         # player 0 -> place 1,  player 1 -> place -1
         # val = - self.player * 2 + 1
         self.player = self.next_player
+        #print(self.player , self.move_cnt)
         self.next_player = self.decide_next_player()
+        #print(self.next_player)
         move_type = self.decide_move_type()
         if move_type == 'pick':
             self.state[self.player].append(move)
@@ -152,6 +138,8 @@ class Draft:
         """
         return True if all players finish drafting
         """
+        if self.move_cnt[0] + self.move_cnt[1] > 22:
+            NameError("Draft move counter err: ", self.move_cnt)
         if self.move_cnt[0] == 11 and self.move_cnt[1] == 11:
             return True
         return False

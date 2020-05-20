@@ -9,13 +9,19 @@ logger = logging.getLogger('mcts')
 
 class Player:
 
-    def get_first_move(self):
-        with open('models/hero_freqs.pickle', 'rb') as f:
-            a, p = pickle.load(f)
-            return numpy.random.choice(a, size=1, p=p)[0]
+    #def get_first_move(self, k=1):
+        #with open('models/hero_freqs.pickle', 'rb') as f:
+        #    a, p = pickle.load(f)
+        #    return [[x, 1] for x in numpy.random.choice(a, size=k, p=p)]
 
-    def get_move(self, move_type):
+
+    def get_moves(self, move_type, k=1):
         raise NotImplementedError
+
+    def get_best_move(self, move_type):
+        moves = self.get_moves(move_type=move_type)
+        best_move, best_win_rate = sorted(moves, key=lambda x: x[1], reverse=True)[0]
+        return best_move
 
 
 class RandomPlayer(Player):
@@ -24,14 +30,15 @@ class RandomPlayer(Player):
         self.draft = draft
         self.name = 'random'
 
-    def get_move(self, move_type):
+    def get_moves(self, move_type, k=1):
         """
         decide the next move
         """
-        if self.draft.if_first_move():
-            return self.get_first_move()
+        #if self.draft.if_first_move():
+        #    return self.get_first_move(k)
         moves = self.draft.get_moves()
-        return random.sample(moves, 1)[0]
+
+        return [[x, 1] for x in random.sample(moves, k)]
 
 
 class HighestWinRatePlayer(Player):
@@ -42,16 +49,17 @@ class HighestWinRatePlayer(Player):
         with open('models/hero_win_rates.pickle', 'rb') as f:
             self.win_rate_dist = pickle.load(f)
 
-    def get_move(self, move_type):
+    def get_moves(self, move_type, k=1):
         """
         decide the next move
         """
-        if self.draft.if_first_move():
-            return self.get_first_move()
+        #if self.draft.if_first_move():
+        #    return self.get_first_move(k)
         moves = self.draft.get_moves()
         move_win_rates = [(m, self.win_rate_dist[m]) for m in moves]
-        best_move, best_win_rate = sorted(move_win_rates, key=lambda x: x[1])[-1]
-        return best_move
+        best_k_moves_with_rate = sorted(move_win_rates, key=lambda x: x[1], reverse=True)[:k]
+        #best_move, best_win_rate = sorted(move_win_rates, key=lambda x: x[1])[-1]
+        return best_k_moves_with_rate
 
 
 class MCTSPlayer(Player):
@@ -62,12 +70,12 @@ class MCTSPlayer(Player):
         self.maxiters = maxiters
         self.c = c
 
-    def get_move(self, move_type):
+    def get_moves(self, move_type, k=1):
         """
         decide the next move
         """
-        if self.draft.if_first_move():
-            return self.get_first_move()
+        #if self.draft.if_first_move():
+        #    return self.get_first_move(k)
 
         root = Node(player=self.draft.player, untried_actions=self.draft.get_moves(), c=self.c)
 
@@ -96,6 +104,10 @@ class MCTSPlayer(Player):
             while not tmp_draft.end():
                 # logger.info('simulation')
                 moves = tmp_draft.get_moves()
+                #print(moves)
+                if self.draft.move_cnt[0]+self.draft.move_cnt[1] > 30:
+                    NameError("move cnt error")
+
                 a = random.sample(moves, 1)[0]
                 tmp_draft.move(a)
             # logger.info('')
@@ -112,4 +124,4 @@ class MCTSPlayer(Player):
                 node = node.parent
             # logger.info('')
 
-        return root.select_final()
+        return root.select_final(k=k)

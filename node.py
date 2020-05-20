@@ -25,12 +25,13 @@ class Node:
         s = sorted(self.children, key=lambda c: c.wins / c.visits + 0.2 * self.c * sqrt(log(self.visits) / c.visits))
         return s[-1]
 
-    def select_final(self):
+    def select_final(self, k=1):
         """
         select the best move as result, without exploration term.
         """
-        s = sorted(self.children, key=lambda c: c.wins / c.visits)
-        return s[-1].action
+
+        s = sorted(self.children, key=lambda c: c.wins / c.visits, reverse=True)[:k]
+        return [[c.action, c.wins / c.visits] for c in s]
 
     def expand(self, action, player, untried_actions):
         """
