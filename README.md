@@ -8,7 +8,7 @@ Każdy ze zbanowanych bohaterów ma 50% szans na zbanowanie w danej rozgrywce.
 W kolejnej fazie parami dwóch graczy z przeciwnych drużyn wybiera postacie. Jeśli wybrali takich samych bohaterów to wybór jest powtarzany. 
 
 Ideą systemu jest traktowanie fazy wyborów jako gry kombinatorycznej. W związku z tym może być ona reprezentowana za pomocą drzewa, na którym wywoływany będzie algorytm monte carlo tree search. Ostateczna rekomendacja zaproponowana jest na podstawie ilorazu zwycięstw oraz liczby odwiedziń danego węzła w drzewie.
-
+![zalozenia](https://github.com/roudie/dota_mcts/blob/master/plots/system.PNG)
 ## Dane
 Dane zawierają 1.9mln meczy dla all picks i dotyczą 119 bohaterów.
 Każdy z meczy zawiera informacje o wyniku, pickach, banach oraz innych uzyskanych wynikach w grze.
