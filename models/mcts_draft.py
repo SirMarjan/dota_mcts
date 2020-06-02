@@ -1,7 +1,6 @@
-from typing import Set, Optional, FrozenSet, List
-
 import logging
 from copy import deepcopy
+from typing import Set, Optional, List
 
 from models.constants import HEROES
 from models.win_rate_models import WinRateModel
@@ -24,6 +23,13 @@ class AllPickDraft:
 
         self.current_player = 1
         self.possible_pick = HEROES
+
+    def __repr__(self):
+        return str({'b': set(self.bans),
+                    'r': self.radiant_picks,
+                    'd': self.dire_picks,
+                    'i': self.is_radiant_player,
+                    'c': self.current_player})
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -65,10 +71,7 @@ class AllPickDraft:
         return new_state
 
     def isTerminal(self) -> bool:
-        if self.is_radiant_player:
-            is_terminal = len(self.radiant_picks) == 5
-        else:
-            is_terminal = len(self.dire_picks) == 5
+        is_terminal = len(self.radiant_picks) + len(self.dire_picks) == 10
 
         logging.debug(f'{self._get_ref()} isTerminal: {is_terminal}')
         return is_terminal
@@ -190,3 +193,13 @@ class CaptainsModeDraft:
 
         logging.debug(f'{self._get_ref()} getReward: {reward}')
         return reward
+
+
+def getOrderedMoves(mcts_object, n_top=5):
+    bestNodes = []
+    for action, child in mcts_object.root.children.items():
+        nodeValue = child.totalReward / child.numVisits
+        # bestNodes.append((k, nodeValue, child.numVisits))
+        bestNodes.append((action, child.numVisits, nodeValue))
+    bestNodes.sort(key=lambda x: -x[1])
+    return [bestNode[0] for bestNode in bestNodes][:n_top]
