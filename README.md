@@ -12,9 +12,19 @@ Ideą systemu jest traktowanie fazy wyborów jako gry kombinatorycznej. W związ
 ## Dane
 Dane zawierają 1.9mln meczy dla all picks i dotyczą 119 bohaterów.
 Każdy z meczy zawiera informacje o wyniku, pickach, banach oraz innych uzyskanych wynikach w grze.
+| Prawdopodobieństwo wygranej dla bohaterów:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/win_ratio.png" width="600"> |
 
 ## Ekstrakcja cech 
 Synergia - macierz prawdopodobieństwa wygranej, w drużynie w której współwystępuje para bohaterów.
+| Synergia dire:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_dire.png" width="600"> |
+
+|### Synergia radiant:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_radiant.png" width="600"> |
 
 Counter pick - macierz prawdopodobieństwa wygranej, gdzie w jednej drużynie występuje dany bohater, natomiast w przeciwnej inny.
 
