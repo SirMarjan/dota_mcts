@@ -13,14 +13,14 @@ class AllPickDraft:
                  model_win_rate: WinRateModel,
                  is_radiant_player: bool = True,
                  bans: Optional[Set[int]] = None,
-                 radiant_pick: Optional[Set[int]] = None,
-                 dire_pick: Optional[Set[int]] = None):
+                 radiant_picks: Optional[Set[int]] = None,
+                 dire_picks: Optional[Set[int]] = None):
         self.model_win_rate = model_win_rate
         self.is_radiant_player = is_radiant_player
 
         self.bans = frozenset(bans) if bans is not None else frozenset()
-        self.radiant_pick = radiant_pick.copy() if radiant_pick is not None else set()
-        self.dire_pick = dire_pick.copy() if dire_pick is not None else set()
+        self.radiant_picks = radiant_picks.copy() if radiant_picks is not None else set()
+        self.dire_picks = dire_picks.copy() if dire_picks is not None else set()
 
         self.current_player = 1
         self.possible_pick = HEROES
@@ -34,13 +34,13 @@ class AllPickDraft:
         result.current_player = self.current_player
 
         result.bans = self.bans
-        result.radiant_pick = self.radiant_pick.copy()
-        result.dire_pick = self.dire_pick.copy()
+        result.radiant_picks = self.radiant_picks.copy()
+        result.dire_picks = self.dire_picks.copy()
         result.possible_pick = self.possible_pick
         return result
 
     def _get_unpick_heroes(self) -> Set[int]:
-        return self.possible_pick - self.radiant_pick - self.dire_pick - self.bans
+        return self.possible_pick - self.radiant_picks - self.dire_picks - self.bans
 
     def _get_ref(self):
         return f'{"R" if self.is_radiant_player else "D"} | {1 if self.current_player == 1 else 0} |'
@@ -57,24 +57,24 @@ class AllPickDraft:
         logging.debug(f'{self._get_ref()} takeAction: {action}')
         new_state = deepcopy(self)
         if self.is_radiant_player:
-            new_state.radiant_pick.add(action)
+            new_state.radiant_picks.add(action)
         else:
-            new_state.dire_pick.add(action)
+            new_state.dire_picks.add(action)
         new_state.current_player *= -1
         new_state.is_radiant_player = not self.is_radiant_player
         return new_state
 
     def isTerminal(self) -> bool:
         if self.is_radiant_player:
-            is_terminal = len(self.radiant_pick) == 5
+            is_terminal = len(self.radiant_picks) == 5
         else:
-            is_terminal = len(self.dire_pick) == 5
+            is_terminal = len(self.dire_picks) == 5
 
         logging.debug(f'{self._get_ref()} isTerminal: {is_terminal}')
         return is_terminal
 
     def getReward(self) -> int:
-        picks = list(self.radiant_pick), list(self.dire_pick)
+        picks = list(self.radiant_picks), list(self.dire_picks)
         input_vector = self.model_win_rate.prepare_input_vector(picks)
         radiant_win = self.model_win_rate.predict_radiant_win(input_vector)
         if self.is_radiant_player and radiant_win == 1 or not self.is_radiant_player and radiant_win == 0:
@@ -107,21 +107,22 @@ class CaptainsModeDraft:
         16: (False, False),
         17: (True, False),
         18: (True, True),
-        19: (False, True)
+        19: (False, True),
+        20: (False, None)
     }
 
     def __init__(self,
                  model_win_rate: WinRateModel,
                  phase: int = 0,
                  bans: Optional[Set[int]] = None,
-                 radiant_pick: Optional[Set[int]] = None,
-                 dire_pick: Optional[Set[int]] = None):
+                 radiant_picks: Optional[Set[int]] = None,
+                 dire_picks: Optional[Set[int]] = None):
         self.model_win_rate = model_win_rate
         self.phase = phase
 
         self.bans = set(bans) if bans is not None else set()
-        self.radiant_pick = radiant_pick.copy() if radiant_pick is not None else set()
-        self.dire_pick = dire_pick.copy() if dire_pick is not None else set()
+        self.radiant_picks = radiant_picks.copy() if radiant_picks is not None else set()
+        self.dire_picks = dire_picks.copy() if dire_picks is not None else set()
 
         self.current_player = 1
         self.possible_pick = HEROES
@@ -135,16 +136,16 @@ class CaptainsModeDraft:
         result.current_player = self.current_player
 
         result.bans = self.bans.copy()
-        result.radiant_pick = self.radiant_pick.copy()
-        result.dire_pick = self.dire_pick.copy()
+        result.radiant_picks = self.radiant_picks.copy()
+        result.dire_picks = self.dire_picks.copy()
         result.possible_pick = self.possible_pick
         return result
 
     def _get_unpick_heroes(self) -> Set[int]:
-        return self.possible_pick - self.radiant_pick - self.dire_pick - self.bans
+        return self.possible_pick - self.radiant_picks - self.dire_picks - self.bans
 
     def _get_ref(self):
-        return f'{self.phase} | {self.__class__._PHASE[self.phase]} |'
+        return f'{self.phase} | {self.__class__._PHASE[self.phase]} | {self.current_player}'
 
     def getCurrentPlayer(self) -> int:
         logging.debug(f'{self._get_ref()} getCurrentPlayer: {self.current_player}')
@@ -162,9 +163,9 @@ class CaptainsModeDraft:
             new_state.bans.add(action)
         else:
             if is_radiant_player:
-                new_state.radiant_pick.add(action)
+                new_state.radiant_picks.add(action)
             else:
-                new_state.dire_pick.add(action)
+                new_state.dire_picks.add(action)
         if self.__class__._PHASE[self.phase][0] != self.__class__._PHASE[self.phase + 1][0]:
             new_state.current_player *= -1
         new_state.phase += 1
@@ -177,7 +178,7 @@ class CaptainsModeDraft:
         return is_terminal
 
     def getReward(self) -> int:
-        picks = list(self.radiant_pick), list(self.dire_pick)
+        picks = list(self.radiant_picks), list(self.dire_picks)
         input_vector = self.model_win_rate.prepare_input_vector(picks)
         radiant_win = self.model_win_rate.predict_radiant_win(input_vector)
 
