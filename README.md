@@ -41,5 +41,13 @@ Wybory postaci są kodowane metodą one hot
 ## Model predykcji wyniku
 Jednym z potrzebnych elementów w algorytmie mcts jest informacja o wyniku symulowanej gry. Aby stworzyć model predykcyjny wykorzystano dane z meczy na których trenowano modele takie jak: MLP, LinearSVM, SGD. Najlepsze wyniki dawał model LinearSVM wynoszące 59% accuracy.
 
+| SGD:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/model_research_1.png" width="600"> |
+
+| Linear SVM:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/model_research_2.png" width="600"> |
+
 ## Walidacja
 
