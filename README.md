@@ -22,11 +22,19 @@ Synergia - macierz prawdopodobieństwa wygranej, w drużynie w której współwy
 |:--:| 
 | <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_dire.png" width="600"> |
 
-|### Synergia radiant:|
+| Synergia radiant:|
 |:--:| 
 | <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_radiant.png" width="600"> |
 
 Counter pick - macierz prawdopodobieństwa wygranej, gdzie w jednej drużynie występuje dany bohater, natomiast w przeciwnej inny.
+
+| Counter dire:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/counter_dire.png" width="600"> |
+
+| Counter radiant:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/counter_radiant.png" width="600"> |
 
 Wybory postaci są kodowane metodą one hot
 
