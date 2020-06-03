@@ -51,3 +51,15 @@ Jednym z potrzebnych elementów w algorytmie mcts jest informacja o wyniku symul
 
 ## Walidacja
 
+Wyniki systemu przetestowano na 100 wybranych grach turniejowych drużyn zawodowych. 
+Jako metoda walidacji wykorzystano predykcję 100 najlepszych bohaterów dla aktualnego meczu. 
+Następnie sprawdzono pozycję(ranking) rekomendacji ostatniego/dwóch ostanich bohaterownie.
+Wyniki zaprezentowano na kolejnych wykresach.
+
+| Rekomendacja ostatniego bohatera:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/pick_one_rank.png" width="600"> |
+
+| Rekomendacja dwóch ostatnich bohaterów:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/pick_two_rank.png" width="600"> |
