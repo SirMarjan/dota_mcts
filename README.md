@@ -22,16 +22,32 @@ Synergia - macierz prawdopodobieństwa wygranej, w drużynie w której współwy
 |:--:| 
 | <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_dire.png" width="600"> |
 
-|### Synergia radiant:|
+| Synergia radiant:|
 |:--:| 
 | <img src="https://github.com/roudie/dota_mcts/blob/master/plots/synergy_radiant.png" width="600"> |
 
 Counter pick - macierz prawdopodobieństwa wygranej, gdzie w jednej drużynie występuje dany bohater, natomiast w przeciwnej inny.
 
+| Counter dire:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/counter_dire.png" width="600"> |
+
+| Counter radiant:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/counter_radiant.png" width="600"> |
+
 Wybory postaci są kodowane metodą one hot
 
 ## Model predykcji wyniku
-Jednym z potrzebnych elementów w algorytmie mcts jest informacja o wyniku symulowanej gry. Aby stworzyć model predykcyjny wykorzystano dane z meczy na których trenowano modele takie jak: MLP, LinearSVM, SGD. Najlepsze wyniki dawał model LinearSVC wynoszące 59% accuracy.
+Jednym z potrzebnych elementów w algorytmie mcts jest informacja o wyniku symulowanej gry. Aby stworzyć model predykcyjny wykorzystano dane z meczy na których trenowano modele takie jak: MLP, LinearSVM, SGD. Najlepsze wyniki dawał model LinearSVM wynoszące 59% accuracy.
 
-## Tesotwanie
+| SGD:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/model_research_1.png" width="600"> |
+
+| Linear SVM:|
+|:--:| 
+| <img src="https://github.com/roudie/dota_mcts/blob/master/plots/model_research_2.png" width="600"> |
+
+## Walidacja
 
